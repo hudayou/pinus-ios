@@ -1,0 +1,92 @@
+# Copyright 2014 Jacky Hu <hudayou@hotmail.com>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+project(iPinus)
+
+set(MODULE_NAME "iPinus")
+set(MODULE_PREFIX "IPINUS")
+set(APP_TYPE MACOSX_BUNDLE)
+
+set(IOS_CLIENT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+set(IOS_CLIENT_RESOURCES_DIR ${IOS_CLIENT_DIR}/Resources)
+
+include_directories(${IOS_CLIENT_DIR})
+
+# Add sources
+set(${MODULE_PREFIX}_SRCS
+	AppDelegate.h
+	AppDelegate.m
+	ViewController.h
+	ViewController.mm
+	NSData+Base64.h
+	NSData+Base64.m
+	main.m)
+
+# add resources
+file(GLOB IOS_CLIENT_RESOURCES_XIBS ${IOS_CLIENT_RESOURCES_DIR}/*.xib)
+file(GLOB IOS_CLIENT_RESOURCES_PNGS ${IOS_CLIENT_RESOURCES_DIR}/*.png)
+
+# Specify source grouping
+source_group(Resources FILES ${IOS_CLIENT_RESOURCES_PNGS} ${IOS_CLIENT_RESOURCES_DIR}/en.lproj)
+
+# import libraries
+find_library(FOUNDATION_FRAMEWORK Foundation)
+find_library(COREGRAPHICS_FRAMEWORK CoreGraphics)
+find_library(SECURITY_FRAMEWORK Security)
+find_library(UIKIT_FRAMEWORK UIKit)
+find_library(SYSTEMCONFIGURATION_FRAMEWORK SystemConfiguration)
+find_library(QUARTZCORE_FRAMEWORK QuartzCore)
+find_library(AUDIOTOOLBOX_FRAMEWORK AudioToolbox)
+find_library(COREAUDIO_FRAMEWORK CoreAudio)
+find_library(MEDIAPLAYER_FRAMEWORK MediaPlayer)
+find_library(AVFOUNDATION_FRAMEWORK AVFoundation)
+
+mark_as_advanced(FOUNDATION_FRAMEWORK COREGRAPHICS_FRAMEWORK SECURITY_FRAMEWORK UIKIT_FRAMEWORK SYSTEMCONFIGURATION_FRAMEWORK QUARTZCORE_FRAMEWORK AUDIOTOOLBOX_FRAMEWORK COREAUDIO_FRAMEWORK MEDIAPLAYER_FRAMEWORK AVFOUNDATION_FRAMEWORK)
+set(EXTRA_LIBS ${FOUNDATION_FRAMEWORK} ${COREGRAPHICS_FRAMEWORK} ${SECURITY_FRAMEWORK} ${UIKIT_FRAMEWORK} ${SYSTEMCONFIGURATION_FRAMEWORK} ${QUARTZCORE_FRAMEWORK} ${AUDIOTOOLBOX_FRAMEWORK} ${COREAUDIO_FRAMEWORK} ${MEDIAPLAYER_FRAMEWORK} ${AVFOUNDATION_FRAMEWORK})
+
+set(${MODULE_NAME}_RESOURCES ${IOS_CLIENT_RESOURCES_XIBS})
+set(${MODULE_NAME}_RESOURCES ${${MODULE_NAME}_RESOURCES} ${IOS_CLIENT_RESOURCES_PNGS})
+set(${MODULE_NAME}_RESOURCES ${${MODULE_NAME}_RESOURCES} ${IOS_CLIENT_RESOURCES_DIR}/en.lproj)
+set(${MODULE_NAME}_RESOURCES ${${MODULE_NAME}_RESOURCES} ${IOS_CLIENT_DIR}/iPinus-Info.plist)
+
+add_executable(${MODULE_NAME}
+	${APP_TYPE}
+	${${MODULE_PREFIX}_SRCS}
+	${${MODULE_NAME}_RESOURCES})
+
+set_target_properties(${MODULE_NAME} PROPERTIES RESOURCE "${${MODULE_NAME}_RESOURCES}")
+
+set(EXECUTABLE_NAME "\${EXECUTABLE_NAME}")
+set(PRODUCT_NAME    "\${PRODUCT_NAME}")
+
+set_target_properties(${MODULE_NAME} PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${IOS_CLIENT_DIR}/iPinus-Info.plist)
+set_target_properties(${MODULE_NAME} PROPERTIES XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET "5.0")
+set_target_properties(${MODULE_NAME} PROPERTIES XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD "gnu++0x")
+set_target_properties(${MODULE_NAME} PROPERTIES XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libc++")
+set_target_properties(${MODULE_NAME} PROPERTIES XCODE_ATTRIBUTE_CLANG_ENABLE_OBJC_ARC NO)
+set_target_properties(${MODULE_NAME} PROPERTIES XCODE_ATTRIBUTE_GCC_C_LANGUAGE_STANDARD "gnu99")
+set_target_properties(${MODULE_NAME} PROPERTIES XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2")
+set_target_properties(${MODULE_NAME} PROPERTIES XCODE_ATTRIBUTE_COMBINE_HIDPI_IMAGES NO)
+set_target_properties(${MODULE_NAME} PROPERTIES XCODE_ATTRIBUTE_SKIP_INSTALL NO)
+set_target_properties(${MODULE_NAME} PROPERTIES XCODE_ATTRIBUTE_INSTALL_PATH "/Applications")
+set_target_properties(${MODULE_NAME} PROPERTIES XCODE_ATTRIBUTE_GCC_GENERATE_DEBUGGING_SYMBOLS YES)
+if (CODE_SIGN_IDENTITY)
+	set_target_properties(${MODULE_NAME} PROPERTIES XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "${CODE_SIGN_IDENTITY}")
+endif()
+set_target_properties(${MODULE_NAME} PROPERTIES LINK_FLAGS "-ObjC")
+
+set(${MODULE_PREFIX}_LIBS ${${MODULE_PREFIX}_LIBS} ${EXTRA_LIBS})
+
+set(${MODULE_PREFIX}_LIBS ${${MODULE_PREFIX}_LIBS} pinus)
+
+target_link_libraries(${MODULE_NAME} ${${MODULE_PREFIX}_LIBS})
